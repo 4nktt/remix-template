@@ -22,7 +22,34 @@ module.exports = {
   ignorePatterns: ["!**/.server", "!**/.client"],
 
   // Base config
-  extends: ["eslint:recommended", "prettier"],
+  extends: [
+    "eslint:recommended",
+    "check-file",
+    "plugin:tailwindcss/recommended",
+    "prettier",
+  ],
+
+  rules: {
+    "prefer-arrow-callback": ["error"],
+    "prefer-template": ["error"],
+    semi: ["error"],
+    quotes: ["error", "double"],
+    "check-file/filename-naming-convention": [
+      "error",
+      {
+        "**/*.{ts,tsx}": "KEBAB_CASE",
+      },
+      {
+        ignoreMiddleExtensions: true,
+      },
+    ],
+    "check-file/folder-naming-convention": [
+      "error",
+      {
+        "src/**/!^[.*": "KEBAB_CASE",
+      },
+    ],
+  },
 
   overrides: [
     // React
@@ -48,6 +75,12 @@ module.exports = {
           typescript: {},
         },
       },
+      rules: {
+        "react-refresh/only-export-components": [
+          "warn",
+          { allowConstantExport: true },
+        ],
+      },
     },
 
     // Typescript
@@ -71,6 +104,33 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      rules: {
+        "import/no-restricted-paths": [
+          "error",
+          {
+            zones: [
+              // enforce unidirectional codebase:
+              // e.g. src/app can import from src/features but not the other way around
+              {
+                target: "./src/features",
+                from: "./src/app",
+              },
+
+              // e.g src/features and src/app can import from these shared modules but not the other way around
+              {
+                target: [
+                  "./src/components",
+                  "./src/hooks",
+                  "./src/lib",
+                  "./src/types",
+                  "./src/utils",
+                ],
+                from: ["./src/features", "./src/app"],
+              },
+            ],
+          },
+        ],
+      },
     },
 
     // Node
